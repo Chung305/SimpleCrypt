@@ -1,74 +1,74 @@
 package src;
 
-import java.sql.SQLOutput;
-
-import static java.lang.Character.isLowerCase;
-import static java.lang.Character.isUpperCase;
-import static java.lang.Character.toLowerCase;
-
 public class ROT13  {
-    private String lowercaseStart = "abcdefghijqlmnpqrstuvwxyz";
-    private String uppercaseStart = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    protected String startUpper;
-    protected String registerUpper;
-    protected String startLower;
-    protected String registerLower;
-    private Boolean symmetric = false;
+    private Integer alpha;
 
     ROT13(Character cs, Character cf) {
-        if (toLowerCase(cs) == 'a' && toLowerCase(cf) == 'n'){
-            symmetric = true;
-        }
-
-        startUpper = ROT13.rotate(uppercaseStart, Character.toUpperCase(cs));
-        startLower = ROT13.rotate(lowercaseStart, Character.toUpperCase(cs));
-
-        registerUpper = ROT13.rotate(uppercaseStart, Character.toUpperCase(cf));
-        registerLower = ROT13.rotate(uppercaseStart, Character.toUpperCase(cf));
-
-        System.out.println(startUpper);
-        System.out.println(registerUpper);
-        System.out.println(startLower);
-        System.out.println(registerLower);
-
+        this.alpha = cs.compareTo(cf);
     }
 
     ROT13() {
-        this('a', 'm');
+        this.alpha = 13;
     }
 
-
     public String crypt(String text) throws UnsupportedOperationException {
-        if(this.symmetric != true) throw new UnsupportedOperationException();
-        return substitute(text, startUpper, registerUpper, startLower, registerLower);
+        return encrypt(text);
     }
 
     public String encrypt(String text) {
-        return substitute(text,startUpper, registerUpper, startLower, registerLower);
+        StringBuilder cypher = new StringBuilder();
+
+        for(int i = 0; i < text.length(); i++){
+            Character character = text.charAt(i);
+            //checking for if its a letter;
+            if(checker(character)){
+                cypher.append(lowerUpperCaseShifter(character));
+            }else
+                cypher.append(character);
+        }
+        return cypher.toString();
     }
 
     public String decrypt(String text) {
-        return substitute(text,startUpper, registerUpper, startLower, registerLower);
+        return encrypt(text);
     }
-
-
-    private String substitute(String text, String startUpper, String registerUpper, String startLower, String registerLower){
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < text.length(); i++){
-            Character ch = text.charAt(i);
-            Integer position = 0;
-            if (isUpperCase(ch)) {
-                position = startUpper.indexOf(ch);
-                sb.append(registerUpper.charAt(i));
-            }
+    public Character lowerUpperCaseShifter(Character character){
+        //checking if lowercase
+        if(Character.isLowerCase(character)){
+            if(character > 'm')
+                return (char) (character + alpha);
+            else
+                return (char) (character - alpha);
         }
-
+        //checking if uppercase
+        else if(Character.isUpperCase(character)){
+            if(character > 'M')
+                return (char) (character + alpha);
+            else
+                return (char)(character - alpha);
+        }
         return null;
     }
 
-    public static String rotate(String s, Character c) {
+    public Boolean checker(Character x){
+        return Character.isLetter(x);
+    }
 
-        return "";
+    public String rotate(String s, Character c) {
+
+        StringBuilder sb = new StringBuilder();
+        this.alpha = c.compareTo(s.charAt(0));
+        for(int i = 0; i < s.length(); i++){
+            char letter;
+            if(i + this.alpha < s.length()){
+                letter = s.charAt(i + this.alpha);
+            }
+            else {
+                letter = s.charAt(i + this.alpha - s.length());
+            }
+            sb.append(letter);
+        }
+        return sb.toString();
     }
 
 }
